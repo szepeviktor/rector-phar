@@ -55,6 +55,7 @@ jobs:
       - name: "Sign PHAR file"
         run: |
           export GPG_TTY="$(tty)"
+          tty
           pwd
           ls -la
           ls -la build/bin/ || true
