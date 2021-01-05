@@ -44,7 +44,7 @@ jobs:
         run: "git clone --branch '${{ steps.determine_git_tag.outputs.tag_name }}' https://github.com/rectorphp/rector-prefixed.git ./build"
 
       - name: "Compile PHAR file"
-        run: "tools/box compile --working-dir=build"
+        run: "cd build/ && ../tools/box compile"
 
       - name: "Import GPG key"
         id: "import_gpg"
