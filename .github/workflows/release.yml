@@ -1,0 +1,56 @@
+name: "Publish release"
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  release:
+    name: "Publish tagged release"
+    strategy:
+      matrix:
+        php-version:
+          - "7.4"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Set default PHP version"
+        run: "sudo update-alternatives --set php /usr/bin/php${{ matrix.php-version }}"
+
+      - name: "Checkout code"
+        uses: "actions/checkout@v2"
+
+      - name: "Determine tag"
+        id: "determine_git_tag"
+        shell: "bash"
+        run: echo "::set-output name=tag_name::${GITHUB_REF/refs\/tags\//}"
+
+      - name: "Cache tools installed with PHIVE"
+        uses: "actions/cache@v2"
+        with:
+          path: "${{ runner.temp }}/.phive"
+          key: "php-${{ matrix.php-version }}-phive-${{ hashFiles('.phive/phars.xml') }}"
+          restore-keys: "php-${{ matrix.php-version }}-phive-"
+
+      - name: "Install PHIVE"
+        uses: "szepeviktor/phive@v1"
+        with:
+          home: "${{ runner.temp }}/.phive"
+
+      - name: "Install PHP tools with PHIVE"
+        run: "'${{ github.workspace }}/tools/phive' --no-progress --home '${{ runner.temp }}/.phive' install --force-accept-unsigned"
+
+      - name: "Download "
+        run: "git clone --branch '${{ steps.determine_git_tag.outputs.tag_name }}' https://github.com/rectorphp/rector-prefixed.git ./build"
+
+      - name: "Compile PHAR file"
+        run: "tools/box compile --working-dir=build"
+
+      - name: "Upload PHAR as release asset"
+        uses: "svenstaro/upload-release-action@v2"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          tag: "${{ github.ref }}"
+          file: "build/bin/rector.phar"
+          asset_name: "rector.phar"
+          overwrite: true
