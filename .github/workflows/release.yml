@@ -54,11 +54,9 @@ jobs:
 
       - name: "Sign PHAR file"
         run: |
-          export GPG_TTY="$(tty)"
-          tty
+          #export GPG_TTY="$(tty)"
           pwd
-          ls -la
-          ls -la build/bin/ || true
+          ls -la build/bin/rector.phar
           gpg --detach-sign --output build/bin/rector.phar.asc build/bin/rector.phar
 
       - name: "Upload PHAR as release asset"
