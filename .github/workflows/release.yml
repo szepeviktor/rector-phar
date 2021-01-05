@@ -53,7 +53,9 @@ jobs:
           gpg-private-key: "${{ secrets.GPG_PRIVATE_KEY }}"
 
       - name: "Sign PHAR file"
-        run: "GPG_TTY=\"$(tty)\" gpg --detach-sign --output build/bin/rector.phar.asc build/bin/rector.phar"
+        run: |
+          export GPG_TTY="$(tty)"
+          gpg --detach-sign --output build/bin/rector.phar.asc build/bin/rector.phar
 
       - name: "Upload PHAR as release asset"
         uses: "svenstaro/upload-release-action@v2"
