@@ -12,7 +12,7 @@ jobs:
       matrix:
         php-version:
           - "7.4"
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
     steps:
       - name: "Set default PHP version"
         run: "sudo update-alternatives --set php /usr/bin/php${{ matrix.php-version }}"
@@ -53,7 +53,7 @@ jobs:
           gpg-private-key: "${{ secrets.GPG_PRIVATE_KEY }}"
 
       - name: "Sign PHAR file"
-        run: "gpg --detach-sign --output build/bin/rector.phar.asc build/bin/rector.phar"
+        run: "GPG_TTY=\"$(tty)\" gpg --detach-sign --output build/bin/rector.phar.asc build/bin/rector.phar"
 
       - name: "Upload PHAR as release asset"
         uses: "svenstaro/upload-release-action@v2"
